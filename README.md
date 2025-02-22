@@ -31,7 +31,12 @@ return {
     lazy = false,
     config = function()
         local my_ctags = require("my_ctags")
-        vim.keymap.set('n', 'your key', my_ctags.jump_to_def, {silent = true, noremap = true})
+        vim.keymap.set('n', 'your remap', my_ctags.jump_to_def, {silent = true, noremap = true})
+        -- OR: 
+        -- this remap will search for all the definitions every time, this is by default
+        vim.keymap.set('n', 'your remap', function() my_ctags.jump_to_def(true) end, {silent = true, noremap = true})
+        -- this remap will use the definitions found during the last search
+        vim.keymap.set('n', 'your remap', function() my_ctags.jump_to_def(false) end, {silent = true, noremap = true})
     end
 }
 ```
