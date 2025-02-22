@@ -7,7 +7,7 @@ end
 
 
 
-local func =  '([%w+_*]+)%s*%([%w*%**%s*,*%_*]*%)[\n]?%{' 
+local func = '[%w+_*%**]+%s+(%**[%w+_*]+)%s*%([%w*%**%s*,*%_*]*%)[\n]?%{'
 local macro = '#define%s*([%w*_*]+)'
 local typedefed_struct = '%}%s*([%w*_*]+)%;'
 
@@ -71,8 +71,16 @@ local get_files_in_pwd = function()
       end
     end
   end
-
   return filepaths
+end
+
+
+
+---@return string | nil Returns the defintion's name
+local match_def = function(line)
+  return line:match(func) or 
+         line:match(macro) or 
+         line:match(typedefed_struct)
 end
 
 
@@ -87,9 +95,7 @@ local search_defs = function()
   for _, at_file in ipairs(filepaths) do
     io.input(at_file)
     local file = io.read('*all')
-    local at_line = 0
-    local last_line_end = 1
-    local char_offset = 0
+    local at_line, char_offset, last_line_end = 0, 0, 1
 
     for char in file:gmatch('.') do
       char_offset = char_offset + 1
@@ -97,8 +103,8 @@ local search_defs = function()
       if char == '\n' then
         at_line = at_line + 1
         local line = file:sub(last_line_end, char_offset + 1)
+        local def_name = match_def(line)
         last_line_end = char_offset
-        local def_name = line:match(func) or line:match(macro) or line:match(typedefed_struct)
         if def_name ~= nil then
           defs_hooks[def_name] = {at_file, at_line}
         end
@@ -111,7 +117,6 @@ end
 -- TODO: make jump_to_def take a flag to allow search_defs(),
 -- so you can have two keys, one for just jumping to previously stored
 -- defs and the other one to search and then jump
--- TODO: func pattern is also matching if's and switch statments
 
 ---@return nil
 M.jump_to_def = function()
@@ -122,7 +127,6 @@ M.jump_to_def = function()
     vim.notify('Zero definition to jump to. Check if you haven\'t added the file containing the definition in "filepaths_to_ignore"', vim.log.levels.ERROR)
     return
   end
-
 
   if M.defs_hooks[word_at_curs] ~= nil then
     local bufnr = vim.fn.bufadd(M.defs_hooks[word_at_curs][1])
