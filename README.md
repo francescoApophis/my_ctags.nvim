@@ -14,6 +14,13 @@ I made it for me, so it's probably not even the best implementation in the world
 I have no idea how performant it is on large codebases, so
 keep your expectations low pls. 
 
+# Requirements
+Neovim v0.9.5 >= (haven't tested it on next versions).
+
+Since it relies on ```pwd``` and on the output of ```ls -R```, 
+I guess it will only work properly on Linux.
+
+
 # Install
 Make a '''my_ctags.lua''' file in your plugin-folder, copy 
 paste this and your good to go.
@@ -35,7 +42,7 @@ because that's what I need, but there is no reason it should not be able to
 support other languages as well since it uses Lua's searching patterns to do its job. 
 
 If you want to you could clone the repo and modify the 
-'''my_ctags.lua''' file in your plugin-folder to:
+```my_ctags.lua``` file in your plugin-folder to:
 
 ```lua
 return {
@@ -48,5 +55,5 @@ return {
 }
 ```
 
-At this point just add more patterns like '''func''' or '''typdefed_struct''' in the '''init.lua''' following how the defintion of something in your target-language works.
+At this point just add more patterns like ```func``` or ```typdefed_struct``` in the ```init.lua``` following how the defintion of something in your target-language works.
 
