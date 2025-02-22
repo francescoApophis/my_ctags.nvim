@@ -31,7 +31,6 @@ local get_files_in_pwd = function()
 end
 
 
--- NOTE: dont fucking touch this shit pls 
 local func =  "([%w+_*]+)%s*%([%w*%**%s*,*%_*]+%)[\n]?%{" 
 local macro = "#define%s*([%w*_*]+)"
 local typedefed_struct = "%}%s*([%w*_*]+)%;"
