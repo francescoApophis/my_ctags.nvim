@@ -36,6 +36,12 @@ M.set_filepaths_to_ignore = function(filepaths)
   M.filepaths_to_ignore = expanded
 end
 
+M.get_filepaths_ignored = function()
+  for _, i in ipairs(M.filepaths_to_ignore) do
+    print(i)
+  end
+end 
+
 ---@return boolean 
 local to_ignore = function(path)
   for _, ignored in ipairs(M.filepaths_to_ignore) do
