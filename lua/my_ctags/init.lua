@@ -31,7 +31,7 @@ local get_files_in_pwd = function()
 end
 
 
-local func =  "([%w+_*]+)%s*%([%w*%**%s*,*%_*]+%)[\n]?%{" 
+local func =  "([%w+_*]+)%s*%([%w*%**%s*,*%_*]*%)[\n]?%{" 
 local macro = "#define%s*([%w*_*]+)"
 local typedefed_struct = "%}%s*([%w*_*]+)%;"
 
@@ -81,7 +81,11 @@ M.jump_to_def = function()
   M.defs_hooks = search_defs()
 
   if M.defs_hooks[word_at_curs] ~= nil then
-    vim.cmd("edit " .. M.defs_hooks[word_at_curs][1])
+    local bufnr = vim.fn.bufadd(M.defs_hooks[word_at_curs][1])
+    if not vim.fn.bufloaded(bufnr) then
+      vim.fn.bufload(bufnr)
+    end
+    vim.cmd('buf ' .. tostring(bufnr))
     vim.fn.cursor(M.defs_hooks[word_at_curs][2], 0)
   else
     vim.notify('no defintion found for: ' .. word_at_curs, vim.log.levels.ERROR)
