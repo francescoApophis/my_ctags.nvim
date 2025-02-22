@@ -114,14 +114,15 @@ local search_defs = function()
   return defs_hooks
 end
 
--- TODO: make jump_to_def take a flag to allow search_defs(),
--- so you can have two keys, one for just jumping to previously stored
--- defs and the other one to search and then jump
 
 ---@return nil
-M.jump_to_def = function()
+M.jump_to_def = function(new_search)
+  new_search = new_search ~= nil or true
+
   local word_at_curs = vim.fn.expand('<cword>')
-  M.defs_hooks = search_defs()
+  if new_search then
+    M.defs_hooks = search_defs()
+  end
 
   if M.defs_hooks == nil then
     vim.notify('Zero definition to jump to. Check if you haven\'t added the file containing the definition in "filepaths_to_ignore"', vim.log.levels.ERROR)
