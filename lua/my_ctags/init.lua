@@ -18,13 +18,12 @@ local get_files_in_pwd = function()
   local curr_path = ""
   local filepaths = {}
 
-  while i < #filepaths_raw + 1 do
-    if filepaths_raw[i]:match("/") ~= nil then
-      curr_path = filepaths_raw[i]
-    elseif filepaths_raw[i]:match("%w+%.[ch]") ~= nil then
-      table.insert(filepaths, curr_path .. "/" .. filepaths_raw[i])
+  for _, fp in ipairs(filepaths_raw) do 
+    if fp:match("/") ~= nil then
+      curr_path = fp
+    elseif fp:match("%w+%.[ch]") ~= nil then
+      table.insert(filepaths, curr_path .. "/" .. fp)
     end
-    i = i + 1
   end
 
   return filepaths
