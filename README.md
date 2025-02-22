@@ -21,7 +21,7 @@ Since it relies on ```pwd``` and on the output of ```ls -R```,
 I guess it will only work properly on Linux.
 
 
-# Install
+# Install and usage
 Make a '''my_ctags.lua''' file in your plugin-folder, copy 
 paste this and your good to go.
 
@@ -40,6 +40,21 @@ return {
     end
 }
 ```
+
+You can specify paths (folders, specific files or both) **to be ignored** when searching.
+This means that you will not be able to jump to a definition that's located in
+one of this files.
+
+Just call ```:require('my_ctags').set_filepaths_to_ignore(filepaths)``` where ```filepaths``` is
+either a ```string``` or an array of strings. The next search will make sure to ignore them.
+
+***Make sure a path is a full path or that it uses the '~'.***
+
+You can see all ignored paths by calling ```:require('my_ctags').get_filepaths_ignored()```
+
+This is useful if you have files that unused files that may contain 
+definitions that share the same name with other *used* definitions.
+
 
 # Extendability
 At the moment it only supports *.c* and *.h*, as the name implies and also
