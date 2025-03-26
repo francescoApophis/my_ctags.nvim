@@ -6,13 +6,15 @@ local _print = function(i)
 end
 
 
-
 local func = '[%w+_*%**]+%s+(%**[%w+_*]+)%s*%([%w*%**%s*,*%_*]*%)[\n]?%{'
 local macro = '#define%s*([%w*_*]+)'
 local typedefed_struct = '%}%s*([%w*_*]+)%;'
 
 M.defs_hooks = {}
 M.filepaths_to_ignore = {}
+
+
+-- TODO: check if <cfile> could be useful in vim.fn.expand()
 
 ---@param filepaths string[]  they can indicate folders or specific files
 M.set_filepaths_to_ignore = function(filepaths)
@@ -55,6 +57,8 @@ local get_files_in_pwd = function()
   local curr_dir = api.nvim_exec2('pwd', {output = true}).output
   local ls_output_raw = api.nvim_exec2("!ls -R " .. curr_dir, {output = true}).output
 
+  -- TODO: sometimes i open files that are not in the pwd.
+  -- check and add open buffers
   local ls_output = {}
   for i in ls_output_raw:gmatch('[/%w_%-%.]+') do 
     if (i ~= 'ls' and i ~= '-R') then 
@@ -119,6 +123,7 @@ local search_defs = function()
   end
   return defs_hooks
 end
+
 
 
 ---@return nil
