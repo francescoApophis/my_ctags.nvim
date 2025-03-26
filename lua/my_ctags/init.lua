@@ -9,12 +9,13 @@ end
 local func = '[%w+_*%**]+%s+(%**[%w+_*]+)%s*%([%w*%**%s*,*%_*]*%)[\n]?%{'
 local macro = '#define%s*([%w*_*]+)'
 local typedefed_struct = '%}%s*([%w*_*]+)%;'
+-- TODO: add non typedefed struct
 
 M.defs_hooks = {}
 M.filepaths_to_ignore = {}
+local prev_bufnr, prev_curs_row, prev_curs_col = -1, -1, -1
 
 
--- TODO: check if <cfile> could be useful in vim.fn.expand()
 
 ---@param filepaths string[]  they can indicate folders or specific files
 M.set_filepaths_to_ignore = function(filepaths)
@@ -58,7 +59,7 @@ local get_files_in_pwd = function()
   local ls_output_raw = api.nvim_exec2("!ls -R " .. curr_dir, {output = true}).output
 
   -- TODO: sometimes i open files that are not in the pwd.
-  -- check and add open buffers
+  -- Check and add open buffers
   local ls_output = {}
   for i in ls_output_raw:gmatch('[/%w_%-%.]+') do 
     if (i ~= 'ls' and i ~= '-R') then 
@@ -100,7 +101,7 @@ local search_defs = function()
   local defs_hooks = {}
 
   local next = next
-  if (next(filepaths) == nil) then return end
+  if (next(filepaths) == nil) then return nil end
 
   for _, at_file in ipairs(filepaths) do
     io.input(at_file)
@@ -126,6 +127,25 @@ end
 
 
 
+M.jump_back = function() 
+  if prev_buf == -1 or prev_curs_row == -1 or  prev_curs_col == -1 then
+    vim.notify('my_ctags.nvim: you haven\'t jumped to any definition, no place to go back to.', vim.log.levels.ERROR)
+    return
+  end
+  -- If you inadvertently press your jump-back key and you go to 
+  -- a jump-to-def's previous location, you can go back to where 
+  -- you were by pressing it again.
+  local curr_bufnr = vim.fn.bufnr(vim.fn.bufname())
+  local curr_curs = vim.fn.getcursorcharpos(vim.fn.winnr())
+
+  vim.cmd('buf ' .. tostring(prev_bufnr))
+  vim.fn.setcursorcharpos(prev_curs_row, prev_curs_col)
+
+  prev_bufnr = curr_bufnr
+  prev_curs_row, prev_curs_col = curr_curs[2], curr_curs[3]
+end
+
+
 ---@return nil
 M.jump_to_def = function(new_search)
   new_search = new_search ~= nil or true
@@ -136,7 +156,7 @@ M.jump_to_def = function(new_search)
   end
 
   if M.defs_hooks == nil then
-    vim.notify('Zero definition to jump to. Check if you haven\'t added the file containing the definition in "filepaths_to_ignore"', vim.log.levels.ERROR)
+    vim.notify('my_ctags.nvim: zero definition to jump to. Check if you haven\'t added the file containing the definition in "filepaths_to_ignore"', vim.log.levels.ERROR)
     return
   end
 
@@ -145,8 +165,13 @@ M.jump_to_def = function(new_search)
     if not vim.fn.bufloaded(bufnr) then
       vim.fn.bufload(bufnr)
     end
+
+    prev_bufnr = vim.fn.bufnr(vim.fn.bufname())
+    local prev_curs = vim.fn.getcursorcharpos(vim.fn.winnr())
+    prev_curs_row, prev_curs_col = prev_curs[2], prev_curs[3]
+
     vim.cmd('buf ' .. tostring(bufnr))
-    vim.fn.cursor(M.defs_hooks[word_at_curs][2], 0)
+    vim.fn.setcursorcharpos(M.defs_hooks[word_at_curs][2], 0)
   else
     vim.notify('No definition to jump to found for: ' .. word_at_curs .. '. Check if you haven\'t added the file containing the defintion in "filepaths_to_ignore"', vim.log.levels.ERROR)
   end

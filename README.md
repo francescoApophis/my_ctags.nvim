@@ -32,11 +32,16 @@ return {
     config = function()
         local my_ctags = require("my_ctags")
         vim.keymap.set('n', 'your remap', my_ctags.jump_to_def, {silent = true, noremap = true})
-        -- OR: 
-        -- this remap will search for all the definitions every time, this is by default
-        vim.keymap.set('n', 'your remap', function() my_ctags.jump_to_def(true) end, {silent = true, noremap = true})
-        -- this remap will use the definitions found during the last search
-        vim.keymap.set('n', 'your remap', function() my_ctags.jump_to_def(false) end, {silent = true, noremap = true})
+        -- OR have two separate mappings: 
+        -- This remap will search for all the definitions every time, this is done by default.
+        vim.keymap.set('n', 'your mapping', function() my_ctags.jump_to_def(true) end, {silent = true, noremap = true})
+        -- This remap will use the definitions found during the last search.
+        vim.keymap.set('n', 'your mapping', function() my_ctags.jump_to_def(false) end, {silent = true, noremap = true})
+
+
+        -- This will make you go to wherever you were before jumping to a definition.
+        -- If you press it by mistake, press it again and you will go back to where you were.
+        vim.keymap.set('n', 'your mapping', function() my_ctags.jump_back() end, {silent = true, noremap = true})
     end
 }
 ```
@@ -66,13 +71,9 @@ If you want to you could clone the repo and modify the
 
 ```lua
 return {
-    dir = "path/where/you/cloned/my_ctags.nvim",
+    dir = "path/where/you/cloned/my_ctags.nvim", -- <---------
     lazy = false,
-    config = function()
-        local my_ctags = require("my_ctags")
-        vim.keymap.set('n', 'your key', my_ctags.jump_to_def, {silent = true, noremap = true})
-    end
-}
+    ...
 ```
 
 At this point just add more patterns like ```func``` or ```typdefed_struct``` in the ```init.lua``` following how the defintion of something in your target-language works.
